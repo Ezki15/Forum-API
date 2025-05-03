@@ -16,7 +16,6 @@ const createServer = async (container) => {
   await server.register([
     {
       plugin: jwt,
-      options: { container },
     },
   ]);
 

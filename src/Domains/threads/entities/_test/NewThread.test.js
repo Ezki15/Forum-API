@@ -6,9 +6,10 @@ describe('a new thread entities', () => {
     const payload = {
       body: 'dicoding',
     };
+    const credentialUser = 'user-123';
 
     // Action and Assert
-    expect(() => new NewThread(payload)).toThrow('NEW_THREAD.NOT_CONTAIN_NEEDED_PROPERTY');
+    expect(() => new NewThread(payload, credentialUser)).toThrow('NEW_THREAD.NOT_CONTAIN_NEEDED_PROPERTY');
   });
 
   it('should throw error when payload did not meet data type specification', () => {
@@ -17,9 +18,10 @@ describe('a new thread entities', () => {
       title: 123,
       body: true,
     };
+    const credentialUser = 'user-123';
 
     // Action and Assert
-    expect(() => new NewThread(payload)).toThrow('NEW_THREAD.NOT_MEET_DATA_TYPE_SPECIFICATION');
+    expect(() => new NewThread(payload, credentialUser)).toThrow('NEW_THREAD.NOT_MEET_DATA_TYPE_SPECIFICATION');
   });
 
   it('should create newThread object correctly', () => {
@@ -28,12 +30,14 @@ describe('a new thread entities', () => {
       title: 'How to play a jiksaw puzzle',
       body: 'Buy a jiksaw puzzle and play it',
     };
+    const credentialUser = 'user-123';
 
     // Action
-    const { title, body } = new NewThread(payload);
+    const { title, body, owner } = new NewThread(payload, credentialUser);
 
     // Assert
     expect(title).toEqual(payload.title);
     expect(body).toEqual(payload.body);
+    expect(owner).toEqual(credentialUser);
   });
 });

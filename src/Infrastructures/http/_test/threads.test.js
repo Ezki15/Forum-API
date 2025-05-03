@@ -36,11 +36,15 @@ describe('/threads endpoint', () => {
         method: 'POST',
         url: '/threads',
         payload: requestPayload,
-        auth: {
-          strategy: 'forum_api_jwt',
-          credentials: {
-            id: 'user-123',
-          },
+        // auth: {
+        //   strategy: 'forum_api_jwt',
+        //   isValid: true,
+        //   credentials: {
+        //     id: 'user-123',
+        //   },
+        // },
+        headers: {
+          Authorization: `Bearer ${await ThreadsTableTestHelper.generateMockToken()}`,
         },
       });
 

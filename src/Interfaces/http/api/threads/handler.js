@@ -15,19 +15,15 @@ class ThreadsHandler {
       body: request.payload.body,
     };
     const addThreadUseCase = this._container.getInstance(AddThreadUseCase.name);
-    try {
-      const addedThread = await addThreadUseCase.execute(threadPayload, owner);
-      const response = h.response({
-        status: 'success',
-        data: {
-          addedThread,
-        },
-      });
-      response.code(201);
-      return response;
-    } catch (error) {
-      console.log(error);
-    }
+    const addedThread = await addThreadUseCase.execute(threadPayload, owner);
+    const response = h.response({
+      status: 'success',
+      data: {
+        addedThread,
+      },
+    });
+    response.code(201);
+    return response;
   }
 }
 

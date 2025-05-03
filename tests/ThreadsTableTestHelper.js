@@ -1,6 +1,7 @@
 /* eslint-disable camelcase */
 /* eslint-disable no-unused-vars */
 /** instanbul ignore file */
+const Jwt = require('@hapi/jwt');
 const pool = require('../src/Infrastructures/database/postgres/pool');
 
 const ThreadsTableTestHelper = {
@@ -18,6 +19,14 @@ const ThreadsTableTestHelper = {
 
   //     await pool.query(query);
   //   },
+
+  async generateMockToken() {
+    const payload = { id: 'user-123' };
+
+    return Jwt.token.generate(payload, {
+      key: process.env.ACCESS_TOKEN_KEY,
+    });
+  },
 
   async findThreadById(id) {
     const query = {
