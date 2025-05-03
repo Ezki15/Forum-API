@@ -16,6 +16,7 @@ const createServer = async (container) => {
   await server.register([
     {
       plugin: jwt,
+      options: { container },
     },
   ]);
 
@@ -26,12 +27,12 @@ const createServer = async (container) => {
       aud: false,
       iss: false,
       sub: false,
-      maxAgeSec: process.env.ACCCESS_TOKEN_AGE,
+      maxAgeSec: process.env.ACCESS_TOKEN_AGE,
     },
     validate: (artifacts) => ({
       isValid: true,
       credentials: {
-        id: artifacts.decoded.payload.sub,
+        id: artifacts.decoded.payload.id,
       },
     }),
   });

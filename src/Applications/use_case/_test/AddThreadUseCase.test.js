@@ -40,9 +40,7 @@ describe('AddThreadUseCase', () => {
       owner: 'user-123',
     }));
 
-    expect(mockThreadRepository.addThread).toHaveBeenCalledWith(new NewThread({
-      title: useCasePayload.title,
-      body: useCasePayload.body,
-    }));
+    expect(mockThreadRepository.addThread).toHaveBeenCalledWith(new NewThread({ ...useCasePayload }, credentialUser));
+    expect(mockThreadRepository.addThread).toHaveBeenCalledTimes(1);
   });
 });
