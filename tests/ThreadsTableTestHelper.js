@@ -5,20 +5,20 @@ const Jwt = require('@hapi/jwt');
 const pool = require('../src/Infrastructures/database/postgres/pool');
 
 const ThreadsTableTestHelper = {
-  // async addThread({
-  //   id = 'thread-123',
-  //   title = 'Thread title',
-  //   body = 'Thread body',
-  //   created_at = new Date().toISOString(),
-  //   owner = 'user-123',
-  // }) {
-  //   const query = {
-  //     text: 'INSERT INTO threads VALUES($1, $2, $3, $4, $5)',
-  //     values: [id, title, body, created_at, owner],
-  //   };
+  async addThread({
+    id = 'thread-123',
+    title = 'Thread title',
+    body = 'Thread body',
+    created_at = new Date().toISOString(),
+    owner = 'user-123',
+  }) {
+    const query = {
+      text: 'INSERT INTO threads VALUES($1, $2, $3, $4, $5)',
+      values: [id, title, body, created_at, owner],
+    };
 
-  //     await pool.query(query);
-  //   },
+    await pool.query(query);
+  },
 
   async generateMockToken() {
     const payload = { id: 'user-123' };

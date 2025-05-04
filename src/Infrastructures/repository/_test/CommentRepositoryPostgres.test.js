@@ -1,0 +1,165 @@
+const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
+const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
+const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
+const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
+const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
+const NewComment = require('../../../Domains/comments/entities/NewComment');
+const SavedComment = require('../../../Domains/comments/entities/SavedComment');
+const pool = require('../../database/postgres/pool');
+const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
+
+describe('CommentRepositoryPostgres', () => {
+  // add user data because comment need userId to fill owner
+  beforeEach(async () => {
+    await UsersTableTestHelper.addUser();
+    await ThreadsTableTestHelper.addThread();
+  });
+
+  afterEach(async () => {
+    await CommentsTableTestHelper.cleanTable();
+    await ThreadsTableTestHelper.cleanTable();
+    await UsersTableTestHelper.cleanTable();
+  });
+
+  afterAll(async () => {
+    await pool.end();
+  });
+
+  describe('addComment function', () => {
+    it('should persist new comment and return saved comment correctly', async () => {
+      // Arrange
+      const credentialUser = 'user-123';
+      const threadId = 'thread-123';
+      const newComment = new NewComment({
+        content: 'Comment content',
+      }, credentialUser, threadId);
+      const fakeIdGenerator = () => '123'; // stub!
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator);
+
+      // Action
+      await commentRepositoryPostgres.addComment(newComment);
+
+      // Assert
+      const comment = await CommentsTableTestHelper.findCommentById('comment-123');
+      expect(comment).toHaveLength(1);
+    });
+
+    it('should return saved comment correctly', async () => {
+      // Arrange
+      const credentialUser = 'user-123';
+      const threadId = 'thread-123';
+      const newComment = new NewComment({
+        content: 'Comment content',
+      }, credentialUser, threadId);
+      const fakeIdGenerator = () => '123'; // stub!
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator);
+      // Action
+      const savedComment = await commentRepositoryPostgres.addComment(newComment);
+      // Assert
+      expect(savedComment).toStrictEqual(new SavedComment({
+        id: 'comment-123',
+        content: newComment.content,
+        owner: credentialUser,
+      }));
+    });
+  });
+  describe('verifyCommentOwner function', () => {
+    it('should throw NotFoundError when comment not found', async () => {
+      // Arrange
+      const credentialUser = 'user-123';
+      const threadId = 'thread-123';
+      const newComment = new NewComment({
+        content: 'Comment content',
+      }, credentialUser, threadId);
+      const fakeIdGenerator = () => '123'; // stub!
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator);
+      // Action
+      await commentRepositoryPostgres.addComment(newComment);
+      // Assert
+      await expect(commentRepositoryPostgres.verifyCommentOwner('comment-456', credentialUser))
+        .rejects.toThrow(NotFoundError);
+    });
+
+    it('should throw AuthorizationError when user is not the owner', async () => {
+      // Arrange
+      const credentialUser = 'user-123';
+      const threadId = 'thread-123';
+      const newComment = new NewComment({
+        content: 'Comment content',
+      }, credentialUser, threadId);
+      const fakeIdGenerator = () => '123'; // stub!
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator);
+      // Action
+      await commentRepositoryPostgres.addComment(newComment);
+      // Assert
+      await expect(commentRepositoryPostgres.verifyCommentOwner('comment-123', 'user-456'))
+        .rejects.toThrow(AuthorizationError);
+    });
+    it('should not throw AuthorizationError when user is the owner', async () => {
+      // Arrange
+      const credentialUser = 'user-123';
+      const threadId = 'thread-123';
+      const newComment = new NewComment({
+        content: 'Comment content',
+      }, credentialUser, threadId);
+      const fakeIdGenerator = () => '123'; // stub!
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator);
+      // Action
+      await commentRepositoryPostgres.addComment(newComment);
+      // Assert
+      await expect(commentRepositoryPostgres.verifyCommentOwner('comment-123', credentialUser))
+        .resolves.not.toThrow(AuthorizationError);
+    });
+  });
+  describe('getCommentById function', () => {
+    it('should throw NotFoundError when comment not found', async () => {
+      // Arrange
+      const credentialUser = 'user-123';
+      const threadId = 'thread-123';
+      const newComment = new NewComment({
+        content: 'Comment content',
+      }, credentialUser, threadId);
+      const fakeIdGenerator = () => '123'; // stub!
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator);
+      // Action
+      await commentRepositoryPostgres.addComment(newComment);
+      // Assert
+      await expect(commentRepositoryPostgres.getCommentById('comment-456', credentialUser))
+        .rejects.toThrow(NotFoundError);
+    });
+    it('should throw AuthorizationError when user is not the owner', async () => {
+      // Arrange
+      const credentialUser = 'user-123';
+      const threadId = 'thread-123';
+      const newComment = new NewComment({
+        content: 'Comment content',
+      }, credentialUser, threadId);
+      const fakeIdGenerator = () => '123'; // stub!
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator);
+      // Action
+      await commentRepositoryPostgres.addComment(newComment);
+      // Assert
+      await expect(commentRepositoryPostgres.getCommentById('comment-123', 'user-456'))
+        .rejects.toThrow(AuthorizationError);
+    });
+    it('should return comment correctly', async () => {
+      // Arrange
+      const credentialUser = 'user-123';
+      const threadId = 'thread-123';
+      const newComment = new NewComment({
+        content: 'Comment content',
+      }, credentialUser, threadId);
+      const fakeIdGenerator = () => '123'; // stub!
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator);
+      // Action
+      await commentRepositoryPostgres.addComment(newComment);
+      // Assert
+      const comment = await commentRepositoryPostgres.getCommentById('comment-123', credentialUser);
+      expect(comment).toStrictEqual({
+        id: 'comment-123',
+        content: newComment.content,
+        owner: credentialUser,
+      });
+    });
+  });
+});
