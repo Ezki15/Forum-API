@@ -44,7 +44,7 @@ class ThreadRepositoryPostgres extends ThreadRepository {
   }
 
   async getThreadById(threadId, owner) {
-    // varify owner thread
+    // verify owner thread
     await this.verifyThreadOwner(threadId, owner);
 
     const query = {
@@ -53,10 +53,6 @@ class ThreadRepositoryPostgres extends ThreadRepository {
     };
 
     const result = await this._pool.query(query);
-
-    if (!result.rows[0]) {
-      throw new NotFoundError('thread tidak ditemukan');
-    }
 
     return result.rows[0];
   }

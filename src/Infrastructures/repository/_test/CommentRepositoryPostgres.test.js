@@ -11,8 +11,8 @@ const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 describe('CommentRepositoryPostgres', () => {
   // add user data because comment need userId to fill owner
   beforeEach(async () => {
-    await UsersTableTestHelper.addUser();
-    await ThreadsTableTestHelper.addThread();
+    await UsersTableTestHelper.addUser({});
+    await ThreadsTableTestHelper.addThread({});
   });
 
   afterEach(async () => {
@@ -156,9 +156,11 @@ describe('CommentRepositoryPostgres', () => {
       // Assert
       const comment = await commentRepositoryPostgres.getCommentById('comment-123', credentialUser);
       expect(comment).toStrictEqual({
+        content: 'Comment content',
         id: 'comment-123',
-        content: newComment.content,
-        owner: credentialUser,
+        is_delete: 'tidak',
+        owner: 'user-123',
+        thread_id: 'thread-123',
       });
     });
   });
