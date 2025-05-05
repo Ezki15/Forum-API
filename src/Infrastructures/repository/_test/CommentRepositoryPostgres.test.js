@@ -164,4 +164,26 @@ describe('CommentRepositoryPostgres', () => {
       });
     });
   });
+
+  describe('deleteComment', () => {
+    it('should delete comment with soft delete', async () => {
+      // Arrange
+      const commentId = 'comment-123';
+      const credentialUser = 'user-123';
+      const threadId = 'thread-123';
+      const newComment = new NewComment({
+        content: 'Comment content',
+      }, credentialUser, threadId);
+      const fakeIdGenerator = () => '123'; // stub!
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator);
+      await commentRepositoryPostgres.addComment(newComment);
+
+      // Action
+      await commentRepositoryPostgres.deleteComment(commentId, credentialUser, threadId);
+
+      // Assert
+      const comment = await CommentsTableTestHelper.findCommentById(commentId);
+      expect(comment).toHaveLength(0);
+    });
+  });
 });
