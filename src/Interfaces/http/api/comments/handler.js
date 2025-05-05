@@ -1,4 +1,5 @@
 const AddCommentUseCase = require('../../../../Applications/use_case/AddCommentUseCase');
+const DeleteCommentUseCase = require('../../../../Applications/use_case/DeleteCommentUseCase');
 
 class CommentsHandler {
   constructor(container) {
@@ -24,6 +25,23 @@ class CommentsHandler {
     });
     response.code(201);
     return response;
+  }
+
+  async deleteCommentHandler(request, h) {
+    const { id: owner } = request.auth.credentials;
+    console.log('owner', owner);
+    console.log('request', request.params);
+    const { threadId, commentId } = request.params;
+    const deleteCommentUseCase = this._container.getInstance(DeleteCommentUseCase.name);
+    console.log('deleteCommentUseCase', deleteCommentUseCase);
+
+    const result = await deleteCommentUseCase.execute(commentId, owner, threadId);
+    console.log(result);
+
+    return h.response({
+      status: 'success',
+      message: 'Comment deleted successfully',
+    }).code(200);
   }
 }
 

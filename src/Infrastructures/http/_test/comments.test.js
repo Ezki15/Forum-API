@@ -93,4 +93,84 @@ describe('/comments endpoint', () => {
       expect(responseJson.status).toEqual('fail');
     });
   });
+
+  describe('when DELETE /comments', () => {
+    it('should response 200 and delete comment', async () => {
+      /** membuat comment */
+      await CommentsTableTestHelper.addComment({});
+
+      /** menjalankan test */
+      // Arrange
+      const server = await createServer(container);
+      const threadId = 'thread-123';
+      const commentId = 'comment-123';
+
+      // Action
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/threads/${threadId}/comments/${commentId}`,
+        headers: {
+          Authorization: `Bearer ${await CommentsTableTestHelper.generateMockToken()}`,
+        },
+      });
+
+      console.log('response', response.payload);
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.status).toEqual('success');
+    });
+
+    it('should response 404 when comment not found', async () => {
+      /** membuat comment */
+      await CommentsTableTestHelper.addComment({});
+
+      /** menjalankan test */
+      // Arrange
+      const server = await createServer(container);
+      const threadId = 'thread-123';
+      const commentId = 'comment-345';
+
+      // Action
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/threads/${threadId}/comments/${commentId}`,
+        headers: {
+          Authorization: `Bearer ${await CommentsTableTestHelper.generateMockToken()}`,
+        },
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(404);
+      expect(responseJson.status).toEqual('fail');
+    });
+
+    it('should response 403 when user not authorized to delete comment', async () => {
+      /** membuat comment */
+      await CommentsTableTestHelper.addComment({});
+
+      /** menjalankan test */
+      // Arrange
+      const server = await createServer(container);
+      const threadId = 'thread-123';
+      const commentId = 'comment-123';
+      const userId = 'user-345';
+
+      // Action
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/threads/${threadId}/comments/${commentId}`,
+        headers: {
+          Authorization: `Bearer ${await CommentsTableTestHelper.generateMockToken(userId)}`,
+        },
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(403);
+      expect(responseJson.status).toEqual('fail');
+    });
+  });
 });
