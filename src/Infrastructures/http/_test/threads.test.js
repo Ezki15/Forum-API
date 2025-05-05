@@ -7,9 +7,7 @@ const createServer = require('../createServer');
 describe('/threads endpoint', () => {
 // add user data because thread need userId to fill owner
   beforeEach(async () => {
-    await pool.query(`
-      INSERT INTO users(id, username, password, fullname)
-      VALUES('user-123', 'testuser', 'encrypted', 'Test User')`);
+    await UsersTableTestHelper.addUser({});
   });
 
   afterAll(async () => {
@@ -36,13 +34,6 @@ describe('/threads endpoint', () => {
         method: 'POST',
         url: '/threads',
         payload: requestPayload,
-        // auth: {
-        //   strategy: 'forum_api_jwt',
-        //   isValid: true,
-        //   credentials: {
-        //     id: 'user-123',
-        //   },
-        // },
         headers: {
           Authorization: `Bearer ${await ThreadsTableTestHelper.generateMockToken()}`,
         },
@@ -80,6 +71,7 @@ describe('/threads endpoint', () => {
       expect(responseJson.status).toEqual('fail');
       expect(responseJson.message).toEqual('tidak dapat membuat thread baru karena properti yang dibutuhkan tidak ada');
     });
+
     it('should response 400 when request payload not meet data type specification', async () => {
       // Arrange
       const requestPayload = {
