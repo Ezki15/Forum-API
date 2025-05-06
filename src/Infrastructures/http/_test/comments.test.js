@@ -114,8 +114,6 @@ describe('/comments endpoint', () => {
         },
       });
 
-      console.log('response', response.payload);
-
       // Assert
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(200);

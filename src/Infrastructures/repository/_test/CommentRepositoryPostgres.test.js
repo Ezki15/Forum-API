@@ -160,6 +160,7 @@ describe('CommentRepositoryPostgres', () => {
         id: 'comment-123',
         is_delete: 'tidak',
         owner: 'user-123',
+        create_at: expect.any(String),
         thread_id: 'thread-123',
       });
     });

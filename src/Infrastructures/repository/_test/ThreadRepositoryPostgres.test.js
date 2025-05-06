@@ -10,9 +10,7 @@ const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
 describe('ThreadRepositoryPostgres', () => {
   // add user data because thread need userId to fill owner
   beforeEach(async () => {
-    await pool.query(`
-      INSERT INTO users(id, username, password, fullname)
-      VALUES('user-123', 'testuser', 'encrypted', 'Test User')`);
+    await UsersTableTestHelper.addUser({});
   });
 
   afterEach(async () => {
@@ -181,6 +179,36 @@ describe('ThreadRepositoryPostgres', () => {
           owner: 'user-123',
         },
       );
+    });
+  });
+  describe('getThreadDetailById function', () => {
+    it('should throw NotFoundError when thread not found', async () => {
+      // Arrange
+      await ThreadsTableTestHelper.addThread({});
+      const threadId = 'thread-345';
+      const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, {});
+
+      // Action & Assert
+      expect(threadRepositoryPostgres.getThreadDetailById(threadId)).rejects.toThrow(NotFoundError);
+    });
+
+    it('should return thread detail correctly', async () => {
+      // Arrange
+      await ThreadsTableTestHelper.addThread({});
+      const threadId = 'thread-123';
+      const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, {});
+
+      // Action
+      const thread = await threadRepositoryPostgres.getThreadDetailById(threadId);
+
+      // Assert
+      expect(thread).toStrictEqual({
+        id: 'thread-123',
+        title: 'Thread title',
+        body: 'Thread body',
+        date: expect.any(String),
+        username: 'dicoding',
+      });
     });
   });
 });

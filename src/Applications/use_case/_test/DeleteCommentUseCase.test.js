@@ -13,7 +13,7 @@ describe('DeleteCommentUseCase', () => {
     await expect(deleteCommentUseCase.execute(commentId, owner, threadId)).rejects.toThrow('DELETE_COMMENT_USE_CASE.NOT_CONTAIN_NEEDED_PROPERTY');
   });
 
-  it('should throw error if preperty not meet data type specification', async () => {
+  it('should throw error if property not meet data type specification', async () => {
     // Arrange
     const commentId = 'comment-123';
     const owner = 123;
