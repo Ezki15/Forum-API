@@ -26,6 +26,17 @@ class CommentRepositoryPostgres extends CommentRepository {
     return new SavedComment({ ...result.rows[0] });
   }
 
+  async validateAvailableThread(threadId) {
+    const query = {
+      text: 'SELECT * FROM threads WHERE id = $1',
+      values: [threadId],
+    };
+    const result = await this._pool.query(query);
+    if (!result.rows.length) {
+      throw new NotFoundError('Thread tidak ditemukan');
+    }
+  }
+
   async verifyCommentOwner(commentId, owner) {
     const query = {
       text: 'SELECT * FROM comments WHERE id = $1',
