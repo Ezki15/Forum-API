@@ -32,7 +32,7 @@ describe('GetCommentByThreadIdUseCase', () => {
       },
     ];
     const mockCommentRepository = new CommentRepository();
-    mockCommentRepository.getCommentsByThreadId = jest.fn().mockImplementation(() => Promise.resolve(expectedComments));
+    mockCommentRepository.getCommentByThreadId = jest.fn().mockImplementation(() => Promise.resolve(expectedComments));
     const getCommentByThreadIdUseCase = new GetCommentByThreadIdUseCase({
       commentRepository: mockCommentRepository,
     });
@@ -42,6 +42,6 @@ describe('GetCommentByThreadIdUseCase', () => {
 
     // Assert
     expect(comments).toEqual(expectedComments);
-    expect(mockCommentRepository.getCommentsByThreadId).toHaveBeenCalledWith(threadId);
+    expect(mockCommentRepository.getCommentByThreadId).toHaveBeenCalledWith(threadId);
   });
 });

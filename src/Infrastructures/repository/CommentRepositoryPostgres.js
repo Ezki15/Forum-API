@@ -83,12 +83,11 @@ class CommentRepositoryPostgres extends CommentRepository {
   async getCommentByThreadId(threadId) {
     const query = {
       text: `SELECT comments.id, comments.content, comments.create_at AS date, comments.is_delete, users.username
-            FROM comments LEFT JOIN users ON comments.owner = users.id WHERE thread_id = $1`,
+            FROM comments LEFT JOIN users ON comments.owner = users.id WHERE thread_id = $1 ORDER BY comments.create_at ASC`,
       values: [threadId],
     };
 
     const result = await this._pool.query(query);
-    console.log(result.rows);
 
     const comments = result.rows.map((row) => {
       if (row.is_delete === 'ya') {

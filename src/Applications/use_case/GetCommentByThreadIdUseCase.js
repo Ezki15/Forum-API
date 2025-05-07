@@ -5,7 +5,7 @@ class GetCommentByThreadIdUseCase {
 
   async execute(threadId) {
     this._validate(threadId);
-    return this._commentRepository.getCommentsByThreadId(threadId);
+    return this._commentRepository.getCommentByThreadId(threadId);
   }
 
   _validate(threadId) {

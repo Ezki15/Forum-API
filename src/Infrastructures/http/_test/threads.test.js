@@ -122,8 +122,6 @@ describe('/threads endpoint', () => {
       // Assert
       const responseJson = JSON.parse(response.payload);
 
-      console.log('responseJson', responseJson);
-
       expect(response.statusCode).toEqual(200);
       expect(responseJson.status).toEqual('success');
     });
@@ -150,5 +148,91 @@ describe('/threads endpoint', () => {
       expect(responseJson.status).toEqual('fail');
       expect(responseJson.message).toEqual('thread tidak ditemukan');
     });
+  });
+
+  it('should response thread detail with comments content included', async () => {
+    // Arrange
+    await ThreadsTableTestHelper.addThread({});
+    await CommentsTableTestHelper.addComment({});
+    const threadId = 'thread-123';
+    const expectedResponse = {
+      status: 'success',
+      data: {
+        thread: {
+          id: threadId,
+          title: 'Thread title',
+          body: 'Thread body',
+          date: expect.any(String),
+          username: 'dicoding',
+          comments: [
+            {
+              id: 'comment-123',
+              username: 'dicoding',
+              date: expect.any(String),
+              content: 'Comment content',
+            },
+          ],
+        },
+      },
+    };
+
+    const server = await createServer(container);
+
+    // Action
+    const response = await server.inject({
+      method: 'GET',
+      url: `/threads/${threadId}`,
+      headers: {
+        Authorization: `Bearer ${await ThreadsTableTestHelper.generateMockToken()}`,
+      },
+    });
+    const responseJson = JSON.parse(response.payload);
+    // Assert
+    expect(response.statusCode).toEqual(200);
+    expect(responseJson.status).toEqual('success');
+    expect(responseJson).toEqual(expectedResponse);
+  });
+
+  it('should response thread detail with comments content included and is_delete = ya', async () => {
+    // Arrange
+    await ThreadsTableTestHelper.addThread({});
+    await CommentsTableTestHelper.addComment({ is_delete: 'ya' });
+    const threadId = 'thread-123';
+    const expectedResponse = {
+      status: 'success',
+      data: {
+        thread: {
+          id: threadId,
+          title: 'Thread title',
+          body: 'Thread body',
+          date: expect.any(String),
+          username: 'dicoding',
+          comments: [
+            {
+              id: 'comment-123',
+              username: 'dicoding',
+              date: expect.any(String),
+              content: '**komentar telah dihapus**',
+            },
+          ],
+        },
+      },
+    };
+
+    const server = await createServer(container);
+
+    // Action
+    const response = await server.inject({
+      method: 'GET',
+      url: `/threads/${threadId}`,
+      headers: {
+        Authorization: `Bearer ${await ThreadsTableTestHelper.generateMockToken()}`,
+      },
+    });
+    const responseJson = JSON.parse(response.payload);
+    // Assert
+    expect(response.statusCode).toEqual(200);
+    expect(responseJson.status).toEqual('success');
+    expect(responseJson).toEqual(expectedResponse);
   });
 });

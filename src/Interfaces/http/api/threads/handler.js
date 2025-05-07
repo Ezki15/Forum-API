@@ -35,11 +35,9 @@ class ThreadsHandler {
     const getThreadDetailUseCase = this._container.getInstance(GetThreadDetailUseCase.name);
     const getCommentByThreadIdUseCase = this._container.getInstance(GetCommentByThreadIdUseCase.name);
 
-    const threadComments = await getCommentByThreadIdUseCase.execute(threadId);
     const thread = await getThreadDetailUseCase.execute(threadId);
 
-    console.log('thread', thread);
-    console.log('threadComments', threadComments);
+    const threadComments = await getCommentByThreadIdUseCase.execute(threadId);
 
     const response = h.response({
       status: 'success',
