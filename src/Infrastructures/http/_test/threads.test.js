@@ -1,6 +1,7 @@
 const pool = require('../../database/postgres/pool');
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
+const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
 const container = require('../../container');
 const createServer = require('../createServer');
 
@@ -99,57 +100,55 @@ describe('/threads endpoint', () => {
       expect(responseJson.status).toEqual('fail');
       expect(responseJson.message).toEqual('tidak dapat membuat thread baru karena tipe data tidak sesuai');
     });
+  });
 
-    // Ini untuk method GET
+  describe('when GET /threds/{threadId}', () => {
+    it('should response 200 and return thread detail', async () => {
+      // Arrange
+      await ThreadsTableTestHelper.addThread({});
+      await CommentsTableTestHelper.addComment({});
+      const threadId = 'thread-123';
+      const server = await createServer(container);
 
-    // it('should response 401 when request payload not contain authentication', async () => {
-    //   // Arrange
-    //   const requestPayload = {
-    //     title: 'Thread title',
-    //     body: 'Thread body',
-    //   };
-    //   const server = await createServer(container);
+      // Action
+      const response = await server.inject({
+        method: 'GET',
+        url: `/threads/${threadId}`,
+        headers: {
+          Authorization: `Bearer ${await ThreadsTableTestHelper.generateMockToken()}`,
+        },
+      });
 
-    //   // Action
-    //   const response = await server.inject({
-    //     method: 'POST',
-    //     url: '/threads',
-    //     payload: requestPayload,
-    //   });
+      // Assert
+      const responseJson = JSON.parse(response.payload);
 
-    //   // Assert
-    //   const responseJson = JSON.parse(response.payload);
-    //   expect(response.statusCode).toEqual(401);
-    //   expect(responseJson.status).toEqual('fail');
-    //   expect(responseJson.message).toEqual('Missing authentication');
-    // });
+      console.log('responseJson', responseJson);
 
-    // it('should response 403 when request payload not contain authorization', async () => {
-    //   // Arrange
-    //   const requestPayload = {
-    //     title: 'Thread title',
-    //     body: 'Thread body',
-    //   };
-    //   const server = await createServer(container);
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.status).toEqual('success');
+    });
 
-    //   // Action
-    //   const response = await server.inject({
-    //     method: 'POST',
-    //     url: '/threads',
-    //     payload: requestPayload,
-    //     auth: {
-    //       strategy: 'forum_api_jwt',
-    //       credentials: {
-    //         id: 'user-123',
-    //       },
-    //     },
-    //   });
+    it('should response 404 when thread not found', async () => {
+      // Arrange
+      await ThreadsTableTestHelper.addThread({});
+      await CommentsTableTestHelper.addComment({});
+      const threadId = 'thread-345';
+      const server = await createServer(container);
 
-    //   // Assert
-    //   const responseJson = JSON.parse(response.payload);
-    //   expect(response.statusCode).toEqual(403);
-    //   expect(responseJson.status).toEqual('fail');
-    //   expect(responseJson.message).toEqual('anda tidak berhak mengakses resource ini');
-    // });
+      // Action
+      const response = await server.inject({
+        method: 'GET',
+        url: `/threads/${threadId}`,
+        headers: {
+          Authorization: `Bearer ${await ThreadsTableTestHelper.generateMockToken()}`,
+        },
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(404);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('thread tidak ditemukan');
+    });
   });
 });
