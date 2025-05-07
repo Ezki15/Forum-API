@@ -187,4 +187,60 @@ describe('CommentRepositoryPostgres', () => {
       expect(comment).toHaveLength(0);
     });
   });
+
+  describe('validateAvailableThread', () => {
+    it('should throw NotFoundError when thread not found', async () => {
+      // Arrange
+      const threadId = 'thread-345';
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+      // Action & Assert
+      await expect(commentRepositoryPostgres.validateAvailableThread(threadId)).rejects.toThrow(NotFoundError);
+    });
+  });
+
+  describe('getCommentByThreadId', () => {
+    it('should return comments by threadId', async () => {
+      // Arrange
+      await CommentsTableTestHelper.addComment({});
+      const threadId = 'thread-123';
+      const expectComment = {
+        id: 'comment-123',
+        username: 'dicoding',
+        date: expect.any(String),
+        content: expect.any(String),
+      };
+
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+      // Action
+      const comments = await commentRepositoryPostgres.getCommentByThreadId(threadId);
+
+      // Assert
+      expect(comments).toHaveLength(1);
+      expect(comments[0]).toMatchObject(expectComment);
+    });
+
+    it('should return deleted comment content as **komentar telah dihapus**', async () => {
+      // Arrange
+      await CommentsTableTestHelper.addComment({});
+      const threadId = 'thread-123';
+      const expectComment = {
+        id: 'comment-123',
+        username: 'dicoding',
+        date: expect.any(String),
+        content: '**komentar telah dihapus**',
+      };
+
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+      // Action
+      await CommentsTableTestHelper.deleteCommentById('comment-123');
+      const comments = await commentRepositoryPostgres.getCommentByThreadId(threadId);
+
+      // Assert
+      expect(comments).toHaveLength(1);
+      expect(comments[0]).toMatchObject(expectComment);
+    });
+  });
 });
