@@ -225,9 +225,6 @@ describe('/threads endpoint', () => {
     const response = await server.inject({
       method: 'GET',
       url: `/threads/${threadId}`,
-      headers: {
-        Authorization: `Bearer ${await ThreadsTableTestHelper.generateMockToken()}`,
-      },
     });
     const responseJson = JSON.parse(response.payload);
     // Assert
