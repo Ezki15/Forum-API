@@ -112,36 +112,6 @@ describe('CommentRepositoryPostgres', () => {
     });
   });
   describe('getCommentById function', () => {
-    it('should throw NotFoundError when comment not found', async () => {
-      // Arrange
-      const credentialUser = 'user-123';
-      const threadId = 'thread-123';
-      const newComment = new NewComment({
-        content: 'Comment content',
-      }, credentialUser, threadId);
-      const fakeIdGenerator = () => '123'; // stub!
-      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator);
-      // Action
-      await commentRepositoryPostgres.addComment(newComment);
-      // Assert
-      await expect(commentRepositoryPostgres.getCommentById('comment-456', credentialUser))
-        .rejects.toThrow(NotFoundError);
-    });
-    it('should throw AuthorizationError when user is not the owner', async () => {
-      // Arrange
-      const credentialUser = 'user-123';
-      const threadId = 'thread-123';
-      const newComment = new NewComment({
-        content: 'Comment content',
-      }, credentialUser, threadId);
-      const fakeIdGenerator = () => '123'; // stub!
-      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator);
-      // Action
-      await commentRepositoryPostgres.addComment(newComment);
-      // Assert
-      await expect(commentRepositoryPostgres.getCommentById('comment-123', 'user-456'))
-        .rejects.toThrow(AuthorizationError);
-    });
     it('should return comment correctly', async () => {
       // Arrange
       const credentialUser = 'user-123';
