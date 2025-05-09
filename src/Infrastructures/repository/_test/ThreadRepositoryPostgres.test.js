@@ -119,42 +119,6 @@ describe('ThreadRepositoryPostgres', () => {
   });
 
   describe('getThreadById function', () => {
-    it('should throw NotFoundError when thread not found', async () => {
-      // Arrange
-      const credentialUser = 'user-123';
-      const newThread = new NewThread({
-        title: 'Thread title',
-        body: 'Thread body',
-      }, credentialUser);
-
-      const fakeIdGenerator = () => '123'; // stub!
-      const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, fakeIdGenerator);
-
-      // Action
-      await threadRepositoryPostgres.addThread(newThread, 'user-123');
-
-      // Assert
-      await expect(threadRepositoryPostgres.getThreadById('thread-345', 'user-123')).rejects.toThrow(NotFoundError);
-    });
-
-    it('should throw AuthorizationError when thread owner is not same with user credential', async () => {
-      // Arrange
-      const credentialUser = 'user-123';
-      const newThread = new NewThread({
-        title: 'Thread title',
-        body: 'Thread body',
-      }, credentialUser);
-
-      const fakeIdGenerator = () => '123'; // stub!
-      const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, fakeIdGenerator);
-
-      // Action
-      await threadRepositoryPostgres.addThread(newThread, 'user-123');
-
-      // Assert
-      await expect(threadRepositoryPostgres.getThreadById('thread-123', 'user-345')).rejects.toThrow(AuthorizationError);
-    });
-
     it('should return thread correctly', async () => {
       // Arrange
       const credentialUser = 'user-123';

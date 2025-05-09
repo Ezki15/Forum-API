@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 class GetCommentByThreadIdUseCase {
   constructor({ commentRepository }) {
     this._commentRepository = commentRepository;
@@ -5,7 +6,25 @@ class GetCommentByThreadIdUseCase {
 
   async execute(threadId) {
     this._validate(threadId);
-    return this._commentRepository.getCommentByThreadId(threadId);
+    const threadComments = await this._commentRepository.getCommentByThreadId(threadId);
+
+    const comments = threadComments.map((row) => {
+      if (row.is_delete === 'ya') {
+        return {
+          id: row.id,
+          username: row.username,
+          date: row.date,
+          content: '**Komentar telah dihapus**',
+        };
+      }
+      return {
+        id: row.id,
+        username: row.username,
+        date: row.date,
+        content: row.content,
+      };
+    });
+    return comments;
   }
 
   _validate(threadId) {

@@ -1,11 +1,35 @@
 class GetThreadDetailUseCase {
-  constructor({ threadRepository }) {
+  constructor({ threadRepository, commentRepository }) {
     this._threadRepository = threadRepository;
+    this._commentRepository = commentRepository;
   }
 
   async execute(threadId) {
     this._validate(threadId);
-    return this._threadRepository.getThreadDetailById(threadId);
+    const threadComments = await this._commentRepository.getCommentByThreadId(threadId);
+    const threadDetail = await this._threadRepository.getThreadDetailById(threadId);
+
+    const comments = threadComments.map((row) => {
+      if (row.is_delete === 'ya') {
+        return {
+          id: row.id,
+          username: row.username,
+          date: row.date,
+          content: '**komentar telah dihapus**',
+        };
+      }
+      return {
+        id: row.id,
+        username: row.username,
+        date: row.date,
+        content: row.content,
+      };
+    });
+
+    return {
+      ...threadDetail,
+      comments,
+    };
   }
 
   _validate(threadId) {

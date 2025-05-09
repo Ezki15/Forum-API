@@ -1,4 +1,5 @@
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
+const CommentRepository = require('../../../Domains/comments/CommentRepository');
 const GetThreadDetailUseCase = require('../GetThreadDetailUseCase');
 
 describe('GetThreadDetailUseCase', () => {
@@ -29,12 +30,37 @@ describe('GetThreadDetailUseCase', () => {
       body: 'Thread Body',
       date: expect.any(String),
       username: 'user-123',
-      comments: [],
+      comments: [
+        {
+          id: 'comment-123',
+          content: 'Comment Content',
+          date: expect.any(String),
+          username: 'user-123',
+        },
+      ],
     };
     const mockThreadRepository = new ThreadRepository();
-    mockThreadRepository.getThreadDetailById = jest.fn().mockImplementation(() => Promise.resolve(expectedThreadDetail));
+    const mockCommentRepository = new CommentRepository();
+    mockThreadRepository.getThreadDetailById = jest.fn().mockImplementation(() => Promise.resolve({
+      id: threadId,
+      title: 'Thread Title',
+      body: 'Thread Body',
+      date: expect.any(String),
+      username: 'user-123',
+    }));
+    mockCommentRepository.getCommentByThreadId = jest.fn().mockImplementation(() => Promise.resolve([
+      {
+        id: 'comment-123',
+        content: 'Comment Content',
+        date: expect.any(String),
+        username: 'user-123',
+      },
+    ]));
+
     const getThreadDetailUseCase = new GetThreadDetailUseCase({
       threadRepository: mockThreadRepository,
+      commentRepository: mockCommentRepository,
+
     });
     // Action
     const threadDetail = await getThreadDetailUseCase.execute(threadId);

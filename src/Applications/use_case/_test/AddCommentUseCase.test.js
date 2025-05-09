@@ -13,7 +13,7 @@ describe('AddCommentUseCase', () => {
     const credentialUser = 'user-123';
     const threadId = 'thread-123';
 
-    const mockSavedComment = new SavedComment({
+    const savedCommentExpected = new SavedComment({
       id: 'comment-123',
       content: useCasePayload.content,
       owner: credentialUser,
@@ -23,7 +23,11 @@ describe('AddCommentUseCase', () => {
     const mockCommentRepository = new CommentRepository();
 
     /** mocking needed function */
-    mockCommentRepository.addComment = jest.fn().mockImplementation(() => Promise.resolve(mockSavedComment));
+    mockCommentRepository.addComment = jest.fn().mockImplementation(() => Promise.resolve({
+      id: 'comment-123',
+      content: 'Comment content',
+      owner: 'user-123',
+    }));
     mockCommentRepository.validateAvailableThread = jest.fn().mockImplementation(() => Promise.resolve());
 
     /** creating use case instance */
@@ -35,11 +39,7 @@ describe('AddCommentUseCase', () => {
     const savedComment = await addCommentUseCase.execute(useCasePayload, credentialUser, threadId);
 
     // Assert
-    expect(savedComment).toStrictEqual(new SavedComment({
-      id: 'comment-123',
-      content: useCasePayload.content,
-      owner: credentialUser,
-    }));
+    expect(savedComment).toStrictEqual({ ...savedCommentExpected });
     expect(mockCommentRepository.validateAvailableThread).toHaveBeenCalledWith(threadId);
     expect(mockCommentRepository.addComment).toHaveBeenCalledWith(new NewComment({ content: useCasePayload.content }, credentialUser, threadId));
     expect(mockCommentRepository.addComment).toHaveBeenCalledTimes(1);
