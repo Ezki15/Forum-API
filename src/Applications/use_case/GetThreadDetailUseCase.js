@@ -1,3 +1,5 @@
+const DetailThread = require('../../Domains/threads/entities/DetailThread');
+
 class GetThreadDetailUseCase {
   constructor({ threadRepository, commentRepository }) {
     this._threadRepository = threadRepository;
@@ -9,27 +11,8 @@ class GetThreadDetailUseCase {
     const threadComments = await this._commentRepository.getCommentByThreadId(threadId);
     const threadDetail = await this._threadRepository.getThreadDetailById(threadId);
 
-    const comments = threadComments.map((row) => {
-      if (row.is_delete === 'ya') {
-        return {
-          id: row.id,
-          username: row.username,
-          date: row.date,
-          content: '**komentar telah dihapus**',
-        };
-      }
-      return {
-        id: row.id,
-        username: row.username,
-        date: row.date,
-        content: row.content,
-      };
-    });
-
-    return {
-      ...threadDetail,
-      comments,
-    };
+    const detailThread = new DetailThread(threadDetail, threadComments);
+    return { ...detailThread };
   }
 
   _validate(threadId) {

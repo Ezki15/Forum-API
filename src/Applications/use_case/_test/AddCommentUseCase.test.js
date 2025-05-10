@@ -4,6 +4,34 @@ const CommentRepository = require('../../../Domains/comments/CommentRepository')
 const AddCommentUseCase = require('../AddCommentUseCase');
 
 describe('AddCommentUseCase', () => {
+  it('should throw error when threadId is not available', async () => {
+    // Arrange
+    const useCasePayload = {
+      content: 'Comment content',
+    };
+
+    const credential = 'user-123';
+    const threadId = 'thread-123';
+    const mockCommentRepository = new CommentRepository();
+    mockCommentRepository.validateAvailableThread = jest.fn().mockImplementation(() => Promise.reject(new Error('Thread tidak ditemukan')));
+    mockCommentRepository.addComment = jest.fn().mockImplementation(() => Promise.resolve(new SavedComment({
+      id: 'comment-123',
+      content: 'Comment content',
+      owner: 'user-123',
+    })));
+    const addCommentUseCase = new AddCommentUseCase({
+      commentRepository: mockCommentRepository,
+    });
+    // Action & Assert
+    await expect(addCommentUseCase.execute(useCasePayload, credential, threadId))
+      .rejects
+      .toThrow('Thread tidak ditemukan');
+    expect(mockCommentRepository.validateAvailableThread).toHaveBeenCalledWith(threadId);
+    expect(mockCommentRepository.validateAvailableThread).toHaveBeenCalledTimes(1);
+    expect(mockCommentRepository.addComment).not.toHaveBeenCalled();
+    expect(mockCommentRepository.addComment).toHaveBeenCalledTimes(0);
+  });
+
   it('should orchestrating the add comment action correctly', async () => {
     // Arrange
     const useCasePayload = {
