@@ -64,22 +64,6 @@ describe('CommentRepositoryPostgres', () => {
     });
   });
   describe('verifyCommentOwner function', () => {
-    it('should throw NotFoundError when comment not found', async () => {
-      // Arrange
-      const credentialUser = 'user-123';
-      const threadId = 'thread-123';
-      const newComment = new NewComment({
-        content: 'Comment content',
-      }, credentialUser, threadId);
-      const fakeIdGenerator = () => '123'; // stub!
-      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator);
-      // Action
-      await commentRepositoryPostgres.addComment(newComment);
-      // Assert
-      await expect(commentRepositoryPostgres.verifyCommentOwner('comment-456', credentialUser))
-        .rejects.toThrow(NotFoundError);
-    });
-
     it('should throw AuthorizationError when user is not the owner', async () => {
       // Arrange
       const credentialUser = 'user-123';
@@ -158,23 +142,33 @@ describe('CommentRepositoryPostgres', () => {
     });
   });
 
-  describe('validateAvailableThread', () => {
-    it('should throw NotFoundError when thread not found', async () => {
+  describe('validateAvailableComment', () => {
+    it('should throw NotFoundError when comment not found', async () => {
       // Arrange
-      const threadId = 'thread-345';
+      await CommentsTableTestHelper.addComment({});
+      const commentId = 'comment-345';
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
       // Action & Assert
-      await expect(commentRepositoryPostgres.validateAvailableThread(threadId)).rejects.toThrow(NotFoundError);
+      await expect(commentRepositoryPostgres.validateAvailableComment(commentId)).rejects.toThrow(NotFoundError);
+    });
+    it('should throw NotFoundError when comment is deleted', async () => {
+      // Arrange
+      await CommentsTableTestHelper.addComment({ is_delete: 'ya' });
+      const commentId = 'comment-123';
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+      // Action & Assert
+      await expect(commentRepositoryPostgres.validateAvailableComment(commentId)).rejects.toThrow(NotFoundError);
     });
 
-    it('should not throw NotFoundError when thread found', async () => {
+    it('should not throw NotFoundError when comment found', async () => {
       // Arrange
-      const threadId = 'thread-123';
+      await CommentsTableTestHelper.addComment({});
+      const commentId = 'comment-123';
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
       // Action & Assert
-      await expect(commentRepositoryPostgres.validateAvailableThread(threadId)).resolves.not.toThrow(NotFoundError);
+      await expect(commentRepositoryPostgres.validateAvailableComment(commentId)).resolves.not.toThrow(NotFoundError);
     });
   });
 

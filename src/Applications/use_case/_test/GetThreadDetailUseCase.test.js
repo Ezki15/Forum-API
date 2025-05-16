@@ -21,6 +21,23 @@ describe('GetThreadDetailUseCase', () => {
     await expect(getThreadDetailUseCase.execute(threadId)).rejects.toThrow('GET_THREAD_DETAIL_USE_CASE.NOT_MEET_DATA_TYPE_SPECIFICATION');
   });
 
+  it('should throw error when thread not available', async () => {
+    // Arrange
+    const threadId = 'thread-123';
+    const mockThreadRepository = new ThreadRepository();
+    const mockCommentRepository = new CommentRepository();
+    mockThreadRepository.validateAvailableThread = jest.fn().mockImplementation(() => {
+      throw new Error('Thread tidak ada');
+    });
+    const getThreadDetailUseCase = new GetThreadDetailUseCase({
+      threadRepository: mockThreadRepository,
+      commentRepository: mockCommentRepository,
+    });
+
+    // Action and assert
+    await expect(getThreadDetailUseCase.execute(threadId)).rejects.toThrow('Thread tidak ada');
+  });
+
   it('should orchestrating the get thread detail action correctly', async () => {
     // Arrange
     const threadId = 'thread-123';
@@ -41,6 +58,7 @@ describe('GetThreadDetailUseCase', () => {
     };
     const mockThreadRepository = new ThreadRepository();
     const mockCommentRepository = new CommentRepository();
+    mockThreadRepository.validateAvailableThread = jest.fn().mockImplementation(() => Promise.resolve());
     mockThreadRepository.getThreadDetailById = jest.fn().mockImplementation(() => Promise.resolve({
       id: threadId,
       title: 'Thread Title',
@@ -65,6 +83,7 @@ describe('GetThreadDetailUseCase', () => {
     const threadDetail = await getThreadDetailUseCase.execute(threadId);
     // Assert
     expect(threadDetail).toEqual(expectedThreadDetail);
+    expect(mockThreadRepository.validateAvailableThread).toHaveBeenCalledWith(threadId);
     expect(mockThreadRepository.getThreadDetailById).toHaveBeenCalledWith(threadId);
     expect(mockCommentRepository.getCommentByThreadId).toHaveBeenCalledWith(threadId);
   });
@@ -89,6 +108,7 @@ describe('GetThreadDetailUseCase', () => {
     };
     const mockThreadRepository = new ThreadRepository();
     const mockCommentRepository = new CommentRepository();
+    mockThreadRepository.validateAvailableThread = jest.fn().mockImplementation(() => Promise.resolve());
     mockThreadRepository.getThreadDetailById = jest.fn().mockImplementation(() => Promise.resolve({
       id: threadId,
       title: 'Thread Title',
@@ -113,6 +133,7 @@ describe('GetThreadDetailUseCase', () => {
     const threadDetail = await getThreadDetailUseCase.execute(threadId);
     // Assert
     expect(threadDetail).toEqual(expectedThreadDetail);
+    expect(mockThreadRepository.validateAvailableThread).toHaveBeenCalledWith(threadId);
     expect(mockThreadRepository.getThreadDetailById).toHaveBeenCalledWith(threadId);
     expect(mockCommentRepository.getCommentByThreadId).toHaveBeenCalledWith(threadId);
   });

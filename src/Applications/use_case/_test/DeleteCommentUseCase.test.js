@@ -1,4 +1,5 @@
 const CommentRepository = require('../../../Domains/comments/CommentRepository');
+const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const DeleteCommentUseCase = require('../DeleteCommentUseCase');
 
 describe('DeleteCommentUseCase', () => {
@@ -30,14 +31,36 @@ describe('DeleteCommentUseCase', () => {
     const owner = 'user-123';
     const threadId = 'thread-123';
     const mockCommentRepository = new CommentRepository();
-    mockCommentRepository.validateAvailableThread = jest.fn().mockImplementation(() => {
+    const mockThreadRepository = new ThreadRepository();
+    mockThreadRepository.validateAvailableThread = jest.fn().mockImplementation(() => {
       throw new Error('Thread tidak ditemukan');
     });
+    mockCommentRepository.validateAvailableThread = jest.fn().mockImplementation(() => {});
     const deleteCommentUseCase = new DeleteCommentUseCase({
       commentRepository: mockCommentRepository,
+      threadRepository: mockThreadRepository,
     });
     // Action and assert
     await expect(deleteCommentUseCase.execute(commentId, owner, threadId)).rejects.toThrow('Thread tidak ditemukan');
+  });
+
+  it('should throw error when comment not available', async () => {
+    // Arrange
+    const commentId = 'comment-123';
+    const owner = 'user-123';
+    const threadId = 'thread-123';
+    const mockCommentRepository = new CommentRepository();
+    const mockThreadRepository = new ThreadRepository();
+    mockThreadRepository.validateAvailableThread = jest.fn().mockImplementation(() => Promise.resolve());
+    mockCommentRepository.validateAvailableComment = jest.fn().mockImplementation(() => {
+      throw new Error('Comment tidak ditemukan');
+    });
+    const deleteCommentUseCase = new DeleteCommentUseCase({
+      commentRepository: mockCommentRepository,
+      threadRepository: mockThreadRepository,
+    });
+    // Action and assert
+    await expect(deleteCommentUseCase.execute(commentId, owner, threadId)).rejects.toThrow('Comment tidak ditemukan');
   });
 
   it('should throw error when owner not match', async () => {
@@ -46,12 +69,15 @@ describe('DeleteCommentUseCase', () => {
     const owner = 'user-123';
     const threadId = 'thread-123';
     const mockCommentRepository = new CommentRepository();
-    mockCommentRepository.validateAvailableThread = jest.fn().mockImplementation(() => Promise.resolve());
+    const mockThreadRepository = new ThreadRepository();
+    mockThreadRepository.validateAvailableThread = jest.fn().mockImplementation(() => Promise.resolve());
+    mockCommentRepository.validateAvailableComment = jest.fn().mockImplementation(() => Promise.resolve());
     mockCommentRepository.verifyCommentOwner = jest.fn().mockImplementation(() => {
       throw new Error('Tidak dapat mengakses sumber ini!');
     });
     const deleteCommentUseCase = new DeleteCommentUseCase({
       commentRepository: mockCommentRepository,
+      threadRepository: mockThreadRepository,
     });
     // Action and assert
     await expect(deleteCommentUseCase.execute(commentId, owner, threadId)).rejects.toThrow('Tidak dapat mengakses sumber ini!');
@@ -64,19 +90,23 @@ describe('DeleteCommentUseCase', () => {
     const threadId = 'thread-123';
 
     const mockCommentRepository = new CommentRepository();
-    mockCommentRepository.validateAvailableThread = jest.fn().mockImplementation(() => Promise.resolve());
+    const mockThreadRepository = new ThreadRepository();
+    mockThreadRepository.validateAvailableThread = jest.fn().mockImplementation(() => Promise.resolve());
+    mockCommentRepository.validateAvailableComment = jest.fn().mockImplementation(() => Promise.resolve());
     mockCommentRepository.verifyCommentOwner = jest.fn().mockImplementation(() => Promise.resolve());
     mockCommentRepository.deleteComment = jest.fn().mockImplementation(() => Promise.resolve());
 
     const deleteCommentUseCase = new DeleteCommentUseCase({
       commentRepository: mockCommentRepository,
+      threadRepository: mockThreadRepository,
     });
 
     // Action
     await deleteCommentUseCase.execute(commentId, owner, threadId);
 
     // Assert
-    expect(mockCommentRepository.validateAvailableThread).toHaveBeenCalledWith(threadId);
+    expect(mockThreadRepository.validateAvailableThread).toHaveBeenCalledWith(threadId);
+    expect(mockCommentRepository.validateAvailableComment).toHaveBeenCalledWith(commentId);
     expect(mockCommentRepository.verifyCommentOwner).toHaveBeenCalledWith(commentId, owner);
     expect(mockCommentRepository.deleteComment).toHaveBeenCalledWith(commentId, owner, threadId);
   });

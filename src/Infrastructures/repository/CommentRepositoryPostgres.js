@@ -27,15 +27,19 @@ class CommentRepositoryPostgres extends CommentRepository {
     return new SavedComment({ ...result.rows[0] });
   }
 
-  async validateAvailableThread(threadId) {
+  async validateAvailableComment(commentId) {
     const query = {
-      text: 'SELECT * FROM threads WHERE id = $1',
-      values: [threadId],
+      text: 'SELECT * FROM comments WHERE id = $1',
+      values: [commentId],
     };
     const result = await this._pool.query(query);
     if (!result.rows.length) {
-      throw new NotFoundError('Thread tidak ditemukan');
+      throw new NotFoundError('Comment tidak ditemukan');
     }
+    if (result.rows[0].is_delete === 'ya') {
+      throw new NotFoundError('Comment tidak ditemukan');
+    }
+    return result.rows[0];
   }
 
   async verifyCommentOwner(commentId, owner) {
@@ -46,10 +50,6 @@ class CommentRepositoryPostgres extends CommentRepository {
 
     const result = await this._pool.query(query);
     const comment = result.rows[0];
-
-    if (!comment) {
-      throw new NotFoundError('Comment tidak ditemukan');
-    }
 
     if (comment.owner !== owner) {
       throw new AuthorizationError('Tidak dapat mengakses sumber ini!');

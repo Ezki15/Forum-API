@@ -25,6 +25,17 @@ class ThreadRepositoryPostgres extends ThreadRepository {
     return new SavedThread({ ...result.rows[0] });
   }
 
+  async validateAvailableThread(threadId) {
+    const query = {
+      text: 'SELECT * FROM threads WHERE id = $1',
+      values: [threadId],
+    };
+    const result = await this._pool.query(query);
+    if (!result.rows.length) {
+      throw new NotFoundError('thread tidak ditemukan');
+    }
+  }
+
   async verifyThreadOwner(threadId, owner) {
     const query = {
       text: 'SELECT * FROM threads WHERE id = $1',
@@ -33,10 +44,6 @@ class ThreadRepositoryPostgres extends ThreadRepository {
 
     const result = await this._pool.query(query);
     const thread = result.rows[0];
-
-    if (!thread) {
-      throw new NotFoundError('thread tidak ditemukan');
-    }
 
     if (thread.owner !== owner) {
       throw new AuthorizationError('Tidak dapat mengakses sumber ini!');
