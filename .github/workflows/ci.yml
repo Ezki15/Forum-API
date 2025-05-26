@@ -53,7 +53,7 @@ jobs:
               env:
                 PGHOST: localhost
                 PGPORT: 5432
-                PGUSER: postgres
+                PGUSER: developer
                 PGPASSWORD: ${{ secrets.PGPASSWORD }}
                 PGDATABASE: forumapi_test
 
