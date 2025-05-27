@@ -14,6 +14,8 @@ describe('/comments endpoint', () => {
   });
 
   afterAll(async () => {
+    const server = await createServer(container);
+    await server.stop();
     await pool.end();
   });
 

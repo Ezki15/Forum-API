@@ -5,6 +5,8 @@ const createServer = require('../createServer');
 
 describe('/users endpoint', () => {
   afterAll(async () => {
+    const server = await createServer(container);
+    await server.stop();
     await pool.end();
   });
 
