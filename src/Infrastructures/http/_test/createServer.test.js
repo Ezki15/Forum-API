@@ -53,6 +53,7 @@ describe('HTTP server', () => {
       const responseJson = JSON.parse(response.payload);
       expect(responseJson.status).toEqual('success');
       expect(responseJson.data.message).toEqual('Hello World!');
+      expect(responseJson.data.time).toBeDefined();
     });
   });
 });
