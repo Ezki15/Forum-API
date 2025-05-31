@@ -61,7 +61,6 @@ describe('AddCommentUseCase', () => {
       content: 'Comment content',
       owner: 'user-123',
     })));
-    mockCommentRepository.validateAvailableThread = jest.fn().mockImplementation(() => Promise.resolve());
 
     /** creating use case instance */
     const addCommentUseCase = new AddCommentUseCase({
