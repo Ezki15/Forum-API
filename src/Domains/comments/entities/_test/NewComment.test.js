@@ -1,7 +1,7 @@
 const NewComment = require('../NewComment');
 
 describe('a new comment entities', () => {
-  it('should throw error when payload did not contain neede property', () => {
+  it('should throw error when payload did not contain needed property', () => {
     // Arrange
     const payload = {};
     const credentialUser = 'user-123';

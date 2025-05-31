@@ -4,10 +4,6 @@ class CommentRepository {
     throw new Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   }
 
-  async validateAvailableThread(threadId) {
-    throw new Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-  }
-
   async validateAvailableComment(commentId) {
     throw new Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   }
