@@ -123,7 +123,7 @@ describe('AddReplyUseCase', () => {
     expect(savedReply).toStrictEqual(savedReplyExpected);
     expect(mockThreadRepository.validateAvailableThread).toHaveBeenCalledWith(threadId);
     expect(mockCommentRepository.validateAvailableComment).toHaveBeenCalledWith(commentId);
-    expect(mockReplyRepository.addReply).toHaveBeenCalledWith(new NewReply({ content: useCasePayload.content }, credentialUser, threadId, commentId));
+    expect(mockReplyRepository.addReply).toHaveBeenCalledWith(new NewReply({ content: useCasePayload.content }, credentialUser, commentId));
     expect(mockReplyRepository.addReply).toHaveBeenCalledTimes(1);
   });
 });
