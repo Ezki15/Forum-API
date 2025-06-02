@@ -35,7 +35,6 @@ describe('DeleteCommentUseCase', () => {
     mockThreadRepository.validateAvailableThread = jest.fn().mockImplementation(() => {
       throw new Error('Thread tidak ditemukan');
     });
-    mockCommentRepository.validateAvailableThread = jest.fn().mockImplementation(() => {});
     const deleteCommentUseCase = new DeleteCommentUseCase({
       commentRepository: mockCommentRepository,
       threadRepository: mockThreadRepository,
