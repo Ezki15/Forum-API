@@ -11,7 +11,7 @@ class DeleteReplyUseCase {
     await this._commentRepository.validateAvailableComment(commentId);
     await this._replyRepository.validateAvailableReply(replyId);
     await this._replyRepository.verifyReplyOwner(replyId, owner);
-    await this._replyRepository.deleteReply(replyId, owner, commentId, threadId);
+    await this._replyRepository.deleteReply(replyId, owner, commentId);
   }
 
   _validate(replyId, owner, commentId, threadId) {

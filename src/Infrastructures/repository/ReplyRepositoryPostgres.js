@@ -1,5 +1,6 @@
 /* eslint-disable camelcase */
 const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
+const NotFoundError = require('../../Commons/exceptions/NotFoundError');
 const SavedReply = require('../../Domains/replies/entities/SavedReply');
 const ReplyRepository = require('../../Domains/replies/ReplyRepository');
 
@@ -24,6 +25,20 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     const result = await this._pool.query(query);
 
     return new SavedReply({ ...result.rows[0] });
+  }
+
+  async validateAvailableReply(replyId) {
+    const query = {
+      text: 'SELECT * FROM replies WHERE id = $1',
+      values: [replyId],
+    };
+    const result = await this._pool.query(query);
+    if (!result.rows.length) {
+      throw new NotFoundError('Reply tidak ditemukan');
+    }
+    if (result.rows[0].is_deleted === 'ya') {
+      throw new NotFoundError('Reply tidak ditemukan');
+    }
   }
 
   async verifyReplyOwner(replyId, owner) {

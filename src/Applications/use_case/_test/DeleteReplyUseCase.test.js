@@ -148,6 +148,6 @@ describe('DeleteReplyUseCase', () => {
     expect(mockCommentRepository.validateAvailableComment).toHaveBeenCalledWith(commentId);
     expect(mockReplyRepository.validateAvailableReply).toHaveBeenCalledWith(replyId);
     expect(mockReplyRepository.verifyReplyOwner).toHaveBeenCalledWith(replyId, owner);
-    expect(mockReplyRepository.deleteReply).toHaveBeenCalledWith(replyId, owner, commentId, threadId);
+    expect(mockReplyRepository.deleteReply).toHaveBeenCalledWith(replyId, owner, commentId);
   });
 });
