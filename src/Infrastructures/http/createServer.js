@@ -101,7 +101,6 @@ const createServer = async (container) => {
         status: 'error',
         message: 'terjadi kegagalan pada server kami',
       });
-      console.error('ini response', response);
       newResponse.code(500);
       return newResponse;
     }

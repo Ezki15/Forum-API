@@ -38,6 +38,16 @@ class ReplyRepositoryPostgres extends ReplyRepository {
       throw new AuthorizationError('Tidak dapat mengakses sumber ini!');
     }
   }
+
+  async deleteReply(owner, replyId, commentId) {
+    const is_deleted = 'ya';
+    const query = {
+      text: 'UPDATE replies SET is_deleted = $1 WHERE id = $2 AND owner = $3 AND comment_id = $4',
+      values: [is_deleted, replyId, owner, commentId],
+    };
+
+    await this._pool.query(query);
+  }
 }
 
 module.exports = ReplyRepositoryPostgres;

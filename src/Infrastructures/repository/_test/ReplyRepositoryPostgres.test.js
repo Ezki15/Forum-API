@@ -100,4 +100,25 @@ describe('ReplyRepositoryPostgres', () => {
         .resolves.not.toThrow(AuthorizationError);
     });
   });
+
+  describe('deleteReply function', () => {
+    it('should delete reply with soft delete', async () => {
+      // Arrange
+      await RepliesTableTestHelper.addReply({});
+
+      const credentialUser = 'user-123';
+      const commentId = 'comment-123';
+      const replyId = 'reply-123';
+
+      const fakeIdGenerator = () => '123'; // stub!
+      const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, fakeIdGenerator);
+
+      // Action
+      await replyRepositoryPostgres.deleteReply(credentialUser, replyId, commentId);
+
+      // Assert
+      const reply = await RepliesTableTestHelper.findReplyById(replyId);
+      expect(reply).toHaveLength(0);
+    });
+  });
 });

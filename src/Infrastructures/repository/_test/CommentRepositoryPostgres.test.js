@@ -120,18 +120,17 @@ describe('CommentRepositoryPostgres', () => {
     });
   });
 
-  describe('deleteComment', () => {
+  describe('deleteComment function', () => {
     it('should delete comment with soft delete', async () => {
       // Arrange
+      await CommentsTableTestHelper.addComment({});
+
       const commentId = 'comment-123';
       const credentialUser = 'user-123';
       const threadId = 'thread-123';
-      const newComment = new NewComment({
-        content: 'Comment content',
-      }, credentialUser, threadId);
+
       const fakeIdGenerator = () => '123'; // stub!
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator);
-      await commentRepositoryPostgres.addComment(newComment);
 
       // Action
       await commentRepositoryPostgres.deleteComment(commentId, credentialUser, threadId);
