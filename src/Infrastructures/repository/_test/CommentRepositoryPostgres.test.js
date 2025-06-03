@@ -141,7 +141,7 @@ describe('CommentRepositoryPostgres', () => {
     });
   });
 
-  describe('validateAvailableComment', () => {
+  describe('validateAvailableComment function', () => {
     it('should throw NotFoundError when comment not found', async () => {
       // Arrange
       await CommentsTableTestHelper.addComment({});
@@ -171,7 +171,7 @@ describe('CommentRepositoryPostgres', () => {
     });
   });
 
-  describe('getCommentByThreadId', () => {
+  describe('getCommentByThreadId function', () => {
     it('should return comments by threadId', async () => {
       // Arrange
       await CommentsTableTestHelper.addComment({});

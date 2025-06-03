@@ -101,6 +101,36 @@ describe('ReplyRepositoryPostgres', () => {
     });
   });
 
+  describe('validateAvailableReply function', () => {
+    it('should throw NotFoundError when reply is not found', async () => {
+      // Arrange
+      await RepliesTableTestHelper.addReply({});
+      const replyId = 'reply-999';
+      const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
+      // Action & Assert
+      await expect(replyRepositoryPostgres.validateAvailableReply(replyId))
+        .rejects.toThrow('Reply tidak ditemukan');
+    });
+    it('should throw NotFoundError when reply is deleted', async () => {
+      // Arrange
+      await RepliesTableTestHelper.addReply({ is_deleted: 'ya' });
+      const replyId = 'reply-123';
+      const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
+      // Action & Assert
+      await expect(replyRepositoryPostgres.validateAvailableReply(replyId))
+        .rejects.toThrow('Reply tidak ditemukan');
+    });
+    it('should not throw NotFoundError when reply is found', async () => {
+      // Arrange
+      await RepliesTableTestHelper.addReply({});
+      const replyId = 'reply-123';
+      const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
+      // Action & Assert
+      await expect(replyRepositoryPostgres.validateAvailableReply(replyId))
+        .resolves.not.toThrow('Reply tidak ditemukan');
+    });
+  });
+
   describe('deleteReply function', () => {
     it('should delete reply with soft delete', async () => {
       // Arrange
@@ -119,6 +149,29 @@ describe('ReplyRepositoryPostgres', () => {
       // Assert
       const reply = await RepliesTableTestHelper.findReplyById(replyId);
       expect(reply).toHaveLength(0);
+    });
+  });
+
+  describe('getReplyByCommentId', () => {
+    it('should return replies by commentId', async () => {
+      // Arrange
+      await RepliesTableTestHelper.addReply({});
+      const commentId = 'comment-123';
+      const expectReply = {
+        id: 'reply-123',
+        username: 'dicoding',
+        date: expect.any(String),
+        content: expect.any(String),
+      };
+
+      const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
+
+      // Action
+      const replies = await replyRepositoryPostgres.getReplyByCommentId(commentId);
+
+      // Assert
+      expect(replies).toHaveLength(1);
+      expect(replies[0]).toMatchObject(expectReply);
     });
   });
 });

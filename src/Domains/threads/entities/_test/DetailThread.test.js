@@ -21,6 +21,7 @@ describe('a DetailThread entities', () => {
     // Action and Assert
     expect(() => new DetailThread(thread, threadComments)).toThrow('DETAIL_THREAD.NOT_CONTAIN_NEEDED_PROPERTY');
   });
+
   it('should throw error when not threadComments contain needed property', () => {
     // Arrange
     const thread = {
