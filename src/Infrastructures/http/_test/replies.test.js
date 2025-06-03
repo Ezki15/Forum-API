@@ -74,4 +74,31 @@ describe('/replies endpoint', () => {
       expect(response.statusCode).toEqual(400);
     });
   });
+
+  describe('when DELETE /replies', () => {
+    it('should response 200 and delete reply', async () => {
+      // Initial setup
+      await RepliesTableTestHelper.addReply({});
+
+      // Arrange
+      const replyId = 'reply-123';
+      const commentId = 'comment-123';
+      const threadId = 'thread-123';
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/threads/${threadId}/comments/${commentId}/replies/${replyId}`,
+        headers: {
+          Authorization: `Bearer ${await RepliesTableTestHelper.generateMockToken()}`,
+        },
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.status).toEqual('success');
+    });
+  });
 });
